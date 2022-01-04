@@ -7,5 +7,6 @@ The script must have `github`, `core`, and `context` parameters from `actions/gi
 Compile the code into one file, located at `dist/index.js`
 
 ```
-npm run build
+npm install -g @vercel/ncc
+ncc build index.js -o dist --source-map --license licenses.txt
 ```

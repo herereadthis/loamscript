@@ -2,7 +2,8 @@ const ncc = require('@vercel/ncc');
 const fs = require('fs');
 
 ncc('./index.js', {
-    cache: false
+    cache: false,
+    sourceMap: true
 }).then(({code, map, assets}) => {
     fs.writeFile('./dist/index.js', code, function (err) {
         if (err) {
