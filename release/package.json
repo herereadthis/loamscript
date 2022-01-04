@@ -1,0 +1,22 @@
+{
+    "name": "release",
+    "version": "1.0.0",
+    "description": "Version bumps package files for node.js applications",
+    "main": "./src/index.js",
+    "engines": {
+        "node": "^16.13.1"
+    },
+    "scripts": {
+        "build": "node ./build.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "license": "MIT",
+    "keywords": [],
+    "author": "",
+    "dependencies": {
+        "shelljs": "^0.8.4"
+    },
+    "devDependencies": {
+        "@vercel/ncc": "^0.33.1"
+    }
+}
