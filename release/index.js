@@ -1,4 +1,4 @@
-const shell = require('shelljs');
+// const exec = require('shelljs/src/exec');
 
 const BRANCH = process.env.branch;
 const CREATE_PROD_RELEASE = process.env.create_prod_release === 'true';
@@ -12,14 +12,15 @@ const getBody = (sha, commitMessage, branch) => {
     `;
 };
 
-const getAppVersion = () => {
-    const currentVersion = shell.exec(`echo $(node -p -e "require('./package.json').version")`);
-    return currentVersion.stdout.toString().trim();
-};
+// const getAppVersion = () => {
+//     const currentVersion = exec(`echo $(node -p -e "require('./package.json').version")`);
+//     return currentVersion.stdout.toString().trim();
+// };
 
-const run = async ({github, context, core}) => {
+const run = async ({github, context, core, package}) => {
     try {
-        const version = getAppVersion();
+        // const version = getAppVersion();
+        const {version} = package;
 
         const {
             owner,
