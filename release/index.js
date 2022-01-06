@@ -7,7 +7,7 @@ const CREATE_PROD_RELEASE = process.env.create_prod_release === 'true';
 const getBody = (sha, commitMessage, branch) => {
     return `
 * Tag Verification
-  * SHA: ${sha}
+  * SHA: \'${sha}\'
   * Commit message: \`${commitMessage}\`
   * Branch: \`${branch}\`
     `;
