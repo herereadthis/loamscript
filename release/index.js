@@ -1,6 +1,7 @@
-// const exec = require('shelljs/src/exec');
-
-const BRANCH = process.env.branch;
+const {
+    branch: BRANCH,
+    release_version: VERSION
+} = process.env;
 const CREATE_PROD_RELEASE = process.env.create_prod_release === 'true';
 
 const getBody = (sha, commitMessage, branch) => {
@@ -12,16 +13,8 @@ const getBody = (sha, commitMessage, branch) => {
     `;
 };
 
-// const getAppVersion = () => {
-//     const currentVersion = exec(`echo $(node -p -e "require('./package.json').version")`);
-//     return currentVersion.stdout.toString().trim();
-// };
-
-const run = async ({github, context, core, package}) => {
+const run = async ({github, context, core}) => {
     try {
-        // const version = getAppVersion();
-        const {version} = package;
-
         const {
             owner,
             repo
@@ -42,12 +35,12 @@ const run = async ({github, context, core, package}) => {
         let prerelease, name, tag_name;
         if (CREATE_PROD_RELEASE) {
             prerelease = false;
-            name = `${version} Production`;
-            tag_name = `v${version}-prod`;
+            name = `${VERSION} Production`;
+            tag_name = `v${VERSION}-prod`;
         } else {
             prerelease = true;
-            name = `${version} Staging`;
-            tag_name = `v${version}-staging`;
+            name = `${VERSION} Staging`;
+            tag_name = `v${VERSION}-staging`;
         }
 
         await github.rest.repos.createRelease({
@@ -64,6 +57,5 @@ const run = async ({github, context, core, package}) => {
         throw err;
     }
 };
-
 
 module.exports = run;
