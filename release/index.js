@@ -2,7 +2,7 @@ const {
     branch: BRANCH,
     release_version: VERSION
 } = process.env;
-const CREATE_PROD_RELEASE = process.env.create_prod_release === 'true';
+const CREATE_PROD_RELEASE = process.env.create_prod_release === 'production';
 
 const getBody = (sha, commitMessage, branch) => {
     return `
