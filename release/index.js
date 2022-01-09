@@ -13,12 +13,11 @@ const getBody = (sha, commitMessage, branch) => {
     `;
 };
 
-const run = async ({github, context, core, options}) => {
+const run = async ({github, context, core, version}) => {
     const {
         owner,
         repo
     } = context.repo;
-    const {version} = options;
 
     if (version === undefined) {
         core.setFailed('Must provide package version');
