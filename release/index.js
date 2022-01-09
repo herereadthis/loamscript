@@ -1,8 +1,8 @@
 const {
     branch: BRANCH,
-    release_version: VERSION
+    release_type
 } = process.env;
-const CREATE_PROD_RELEASE = process.env.create_prod_release === 'production';
+const CREATE_PROD_RELEASE = release_type === 'production';
 
 const getBody = (sha, commitMessage, branch) => {
     return `
@@ -13,13 +13,18 @@ const getBody = (sha, commitMessage, branch) => {
     `;
 };
 
-const run = async ({github, context, core}) => {
-    try {
-        const {
-            owner,
-            repo
-        } = context.repo;
+const run = async ({github, context, core, options}) => {
+    const {
+        owner,
+        repo
+    } = context.repo;
+    const {version} = options;
 
+    if (version === undefined) {
+        core.setFailed('Must provide package version');
+    }
+
+    try {
         const commits = await github.rest.repos.listCommits({
             owner,
             repo,
@@ -35,12 +40,12 @@ const run = async ({github, context, core}) => {
         let prerelease, name, tag_name;
         if (CREATE_PROD_RELEASE) {
             prerelease = false;
-            name = `${VERSION} Production`;
-            tag_name = `v${VERSION}-prod`;
+            name = `${version} Production`;
+            tag_name = `v${version}-prod`;
         } else {
             prerelease = true;
-            name = `${VERSION} Staging`;
-            tag_name = `v${VERSION}-staging`;
+            name = `${version} Staging`;
+            tag_name = `v${version}-staging`;
         }
 
         await github.rest.repos.createRelease({
