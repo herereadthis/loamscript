@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 const {
     branch: BRANCH,
     release_type
@@ -13,7 +15,7 @@ const getBody = (sha, commitMessage, branch) => {
     `;
 };
 
-const run = async ({github, context, core, version}) => {
+const run = async ({github, context, core, version, template}) => {
     const {
         owner,
         repo
@@ -21,6 +23,13 @@ const run = async ({github, context, core, version}) => {
 
     if (version === undefined) {
         core.setFailed('Must provide package version');
+    }
+
+    if (template !== undefined) {
+        const data = fs.readFileSync('./input.txt',
+            {encoding:'utf8', flag:'r'});
+        
+        core.warning(data);
     }
 
     try {
