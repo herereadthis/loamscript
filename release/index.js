@@ -1,10 +1,13 @@
-const fs = require('fs');
-
 const {
     branch: BRANCH,
     release_type
 } = process.env;
 const CREATE_PROD_RELEASE = release_type === 'production';
+
+async function loadFile(file) {
+    let text = await file.text();
+    return text;
+}
 
 const getBody = (sha, commitMessage, branch) => {
     return `
@@ -26,9 +29,7 @@ const run = async ({github, context, core, version, template}) => {
     }
 
     if (template !== undefined) {
-        const data = fs.readFileSync('./input.txt',
-            {encoding:'utf8', flag:'r'});
-        
+        const data = await loadFile(template);
         core.warning(data);
     }
 
