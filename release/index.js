@@ -1,16 +1,15 @@
+const fs = require('fs');
+
 const {
     branch: BRANCH,
     release_type
 } = process.env;
 const CREATE_PROD_RELEASE = release_type === 'production';
 
-async function loadFile(file) {
-    let text = await file.text();
-    return text;
-}
-
-const getBody = (sha, commitMessage, branch) => {
+const getBody = (sha, commitMessage, branch, template) => {
     return `
+${template}
+
 * Tag Verification
   * SHA: \`${sha}\`
   * Commit message: \`${commitMessage}\`
@@ -28,9 +27,17 @@ const run = async ({github, context, core, version, template}) => {
         core.setFailed('Must provide package version');
     }
 
+    let releaseTemplate = '';
     if (template !== undefined) {
-        const data = await loadFile(template);
-        core.warning(data);
+        try {
+            releaseTemplate = fs.readFileSync(template, {
+                encoding:'utf8',
+                flag:'r'
+            });
+        } catch (err) {
+            core.setFailed('unable to read template file');
+            throw err;
+        }
     }
 
     try {
@@ -63,7 +70,7 @@ const run = async ({github, context, core, version, template}) => {
             tag_name,
             target_commitish: sha,
             name,
-            body: getBody(sha, commit.message, BRANCH),
+            body: getBody(sha, commit.message, BRANCH, releaseTemplate),
             prerelease
         });
     } catch (err) {
