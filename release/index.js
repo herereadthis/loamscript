@@ -61,6 +61,16 @@ const run = async ({github, context, core, version, template}) => {
 
         const tagExists = tags.some(tag => tag.name === tag_name);
 
+
+
+        const release = (await github.rest.repos.getRelTageaseBy({
+            owner,
+            repo,
+            tag: tag_name
+        })).data;
+        core.warning('release');
+        core.warning(release);
+
         const releases = (await github.rest.repos.listReleases({
             owner,
             repo,
@@ -81,7 +91,7 @@ const run = async ({github, context, core, version, template}) => {
         } else if (tagExists && CREATE_PROD_RELEASE && preReleaseExists) {
             core.warning(`tag${tag_name} exists and prerelease exists. Update existing prerelease!`);
         } else if (tagExists && CREATE_PROD_RELEASE) {
-            core.warning(`tag${tag_name} exists but no corresponding release exists. Create new production release!`);
+            core.warning(`tag ${tag_name} exists but no corresponding release exists. Create new production release!`);
         } else if (tagExists && preReleaseExists) {
             core.setFailed(`tag ${tag_name} exists and prerelease already exists!`);
         } else if (tagExists) {
@@ -101,11 +111,11 @@ const run = async ({github, context, core, version, template}) => {
         let prerelease, name;
         if (CREATE_PROD_RELEASE) {
             prerelease = false;
-            name = `${version} Production`;
+            name = `${version}`;
             // tag_name = `v${version}`;
         } else {
             prerelease = true;
-            name = `${version} Staging`;
+            name = `${version}`;
             // tag_name = `v${version}`;
         }
 
