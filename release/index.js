@@ -6,13 +6,13 @@ const {
 } = process.env;
 const CREATE_PROD_RELEASE = release_type === 'production';
 
-const getBody = (sha, commitMessage, branch, template) => {
+const getBody = (sha, commitMessage, commitUrl, branch, template) => {
     return `
 ${template}
 
 * Tag Verification
-  * SHA: \`${sha}\`
-  * Commit message: \`${commitMessage}\`
+  * SHA: \`${sha}\` ([link](${commitUrl}))
+  * Commit message: \`${commitMessage.replace(/\n+/g, ' - ')}\`
   * Branch: \`${branch}\`
     `;
 };
@@ -50,7 +50,8 @@ const run = async ({github, context, core, version, template}) => {
 
         const {
             sha,
-            commit
+            commit,
+            html_url: commitUrl
         } = commits.data[0];
 
         let prerelease, name, tag_name;
@@ -70,7 +71,7 @@ const run = async ({github, context, core, version, template}) => {
             tag_name,
             target_commitish: sha,
             name,
-            body: getBody(sha, commit.message, BRANCH, releaseTemplate),
+            body: getBody(sha, commit.message, commitUrl, BRANCH, releaseTemplate),
             prerelease
         });
     } catch (err) {
