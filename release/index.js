@@ -41,37 +41,20 @@ const run = async ({github, context, core, version, template}) => {
     }
 
     try {
-        const commits = await github.rest.repos.listCommits({
+        const commits = (await github.rest.repos.listCommits({
             owner,
             repo,
             per_page: 1,
             sha: BRANCH
-        });
+        })).data;
 
         const tag_name = `v${version}`;
 
-        const tagsRequest = await github.rest.repos.listTags({
+        const tags = (await github.rest.repos.listTags({
             owner,
             repo,
             per_page: 5
-        });
-
-        const tags = tagsRequest.data;
-
-        const tagExists = tags.some(tag => tag.name === tag_name);
-
-        if (tagExists && CREATE_PROD_RELEASE) {
-            core.warning('tag exists for latest release');
-        } else if (tagExists) {
-            core.warning('tag exists for prerelease');
-        } else if (!tagExists && CREATE_PROD_RELEASE) {
-            core.warning('tag does not exist for latest release!');
-        } else {
-            core.warning('tag does not exist for prerelease!');
-        }
-
-        core.warning('tags');
-        core.warning(tags);
+        })).data;
 
         const releases = (await github.rest.repos.listReleases({
             owner,
@@ -82,11 +65,40 @@ const run = async ({github, context, core, version, template}) => {
         core.warning('releases');
         core.warning(releases);
 
+        const tags = tagsRequest.data;
+
+        const tagExists = tags.some(tag => tag.name === tag_name);
+
+        // prodReleaseExists and preReleaseExists can both be false, e.g., no 
+        // releases have been made for the tag. However, they cannot both be
+        // true because 2 releases cannot be made against the same tag.
+        const prodReleaseExists = releases.some(release => release.tag_name === tag_name && !release.prerelease);
+        const preReleaseExists = releases.some(release => release.tag_name === tag_name && release.prerelease);
+
+        if (tagExists && CREATE_PROD_RELEASE && prodReleaseExists) {
+            core.setFailed(`tag ${tag_name} exists and production release already exists!`);
+        } else if (tagExists && CREATE_PROD_RELEASE && preReleaseExists) {
+            core.warning(`tag${tag_name} exists and prerelease exists. Update existing prerelease!`);
+        } else if (tagExists && CREATE_PROD_RELEASE) {
+            core.warning(`tag${tag_name} exists but no corresponding release exists. Create new production release!`);
+        } else if (tagExists && preReleaseExists) {
+            core.setFailed(`tag ${tag_name} exists and prerelease already exists!`);
+        } else if (tagExists) {
+            core.warning(`tag ${tag_name} exists but no corresponding prerelease exists. Create new prerelease!`);
+        } else if (!tagExists && CREATE_PROD_RELEASE) {
+            core.warning(`tag${tag_name} does not exist. Create new Production Release!`);
+        } else {
+            core.warning(`tag${tag_name} does not exist. Craete new Prerelease!`);
+        }
+
+        core.warning('tags');
+        core.warning(tags);
+
         const {
             sha,
             commit,
             html_url: commitUrl
-        } = commits.data[0];
+        } = commits[0];
 
         let prerelease, name;
         if (CREATE_PROD_RELEASE) {
