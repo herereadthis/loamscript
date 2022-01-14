@@ -48,21 +48,40 @@ const run = async ({github, context, core, version, template}) => {
             sha: BRANCH
         });
 
+        const tags = await github.rest.repos.listTags({
+            owner,
+            repo,
+            per_page: 5
+        });
+
+        core.warning('tags');
+        core.warning(tags.data);
+
+        const releases = await github.rest.repos.listReleases({
+            owner,
+            repo,
+            per_page: 5
+        });
+
+        core.warning('releases');
+        core.warning(releases);
+
         const {
             sha,
             commit,
             html_url: commitUrl
         } = commits.data[0];
 
-        let prerelease, name, tag_name;
+        const tag_name = `v${version}`;
+        let prerelease, name;
         if (CREATE_PROD_RELEASE) {
             prerelease = false;
             name = `${version} Production`;
-            tag_name = `v${version}-prod`;
+            // tag_name = `v${version}`;
         } else {
             prerelease = true;
             name = `${version} Staging`;
-            tag_name = `v${version}-staging`;
+            // tag_name = `v${version}`;
         }
 
         await github.rest.repos.createRelease({
