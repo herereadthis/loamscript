@@ -45,20 +45,16 @@ const run = async ({github, context, core, version, template}) => {
 
     let release;
     try {
-        core.warning('release');
         release = (await github.rest.repos.getReleaseByTag({
             owner,
             repo,
             tag: tag_name
         })).data;
-        core.warning(release);
     } catch (err) {
-        core.warning(err);
+        core.info(`A release for tag ${tag_name} already exists`);
     }
-    core.warning(`release exists: ${release !== undefined}`);
 
     try {
-
         const commits = (await github.rest.repos.listCommits({
             owner,
             repo,
