@@ -87,23 +87,23 @@ const run = async ({github, context, core, version, template}) => {
         }
 
         if (CREATE_PROD_RELEASE && tagExists && prodReleaseExists) {
-            core.setFailed(`tag ${tag_name} exists and production release already exists!`);
+            core.setFailed(`tag ${tag_name} exists with release '${release.name}' already exists!`);
         } else if (CREATE_PROD_RELEASE && tagExists && preReleaseExists) {
-            core.warning(`tag ${tag_name} exists and prerelease exists. Update existing prerelease!`);
+            core.warning(`tag ${tag_name} exists with prerelease '${release.name}' exists. Update existing prerelease!`);
             updateExistingRelease = true;
         } else if (CREATE_PROD_RELEASE && tagExists) {
-            core.warning(`tag ${tag_name} exists but no corresponding release exists. Create new production release!`);
+            core.warning(`Tag ${tag_name} exists but no corresponding release exists. Create new production release!`);
             createNewRelease = true;
         } else if (CREATE_PROD_RELEASE) {
-            core.warning(`tag ${tag_name} does not exist. Create new Production Release!`);
+            core.warning(`Tag ${tag_name} does not exist. Create new Production Release!`);
             createNewRelease = true;
         } else if (tagExists && preReleaseExists) {
-            core.setFailed(`tag ${tag_name} exists and prerelease already exists!`);
+            core.setFailed(`Tag ${tag_name} exists with prerelease '${release.name}' already exists!`);
         } else if (tagExists) {
-            core.warning(`tag ${tag_name} exists but no corresponding prerelease exists. Create new prerelease!`);
+            core.warning(`Tag ${tag_name} exists but no corresponding prerelease exists. Create new prerelease!`);
             createNewRelease = true;
         } else {
-            core.warning(`tag${tag_name} does not exist. Create new Prerelease!`);
+            core.warning(`Tag ${tag_name} does not exist. Create new Prerelease!`);
             createNewRelease = true;
         }
         
