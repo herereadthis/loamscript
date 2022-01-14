@@ -55,15 +55,12 @@ const run = async ({github, context, core, version, template}) => {
             repo,
             per_page: 5
         })).data;
-
         core.warning('tags');
         core.warning(tags);
 
         const tagExists = tags.some(tag => tag.name === tag_name);
 
-
-
-        const release = (await github.rest.repos.getRelTageaseBy({
+        const release = (await github.rest.repos.getReleaseByTag({
             owner,
             repo,
             tag: tag_name
@@ -80,9 +77,10 @@ const run = async ({github, context, core, version, template}) => {
         core.warning('releases');
         core.warning(releases);
 
-        // prodReleaseExists and preReleaseExists can both be false, e.g., no 
-        // releases have been made for the tag. However, they cannot both be
-        // true because 2 releases cannot be made against the same tag.
+        // prodReleaseExists and preReleaseExists can both be false if a) no 
+        // releases have been made using the tag or b) the tag does not exist. 
+        // However, they cannot both be true because 2 releases cannot be made 
+        // using the same tag.
         const prodReleaseExists = releases.some(release => release.tag_name === tag_name && !release.prerelease);
         const preReleaseExists = releases.some(release => release.tag_name === tag_name && release.prerelease);
 
