@@ -40,8 +40,21 @@ const run = async ({github, context, core, version, template}) => {
         }
     }
 
+    const tag_name = `v${version}`;
+
     try {
-        const tag_name = `v${version}`;
+        core.warning('releaseRequest');
+        const releaseRequest = await github.rest.repos.getReleaseByTag({
+            owner,
+            repo,
+            tag: tag_name
+        });
+        core.warning(releaseRequest);
+    } catch (err) {
+        core.warning(err);
+    }
+
+    try {
 
         const commits = (await github.rest.repos.listCommits({
             owner,
@@ -59,14 +72,6 @@ const run = async ({github, context, core, version, template}) => {
         core.warning(tags);
 
         const tagExists = tags.some(tag => tag.name === tag_name);
-
-        core.warning('releaseRequest');
-        const releaseRequest = await github.rest.repos.getReleaseByTag({
-            owner,
-            repo,
-            tag: tag_name
-        });
-        core.warning(releaseRequest);
 
         core.warning('releases');
         const releases = (await github.rest.repos.listReleases({
