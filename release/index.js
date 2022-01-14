@@ -50,13 +50,13 @@ const run = async ({github, context, core, version, template}) => {
 
         const tag_name = `v${version}`;
 
-        const tagRequest = await github.rest.repos.listTags({
+        const tagsRequest = await github.rest.repos.listTags({
             owner,
             repo,
             per_page: 5
         });
 
-        const tags = tagRequest.data;
+        const tags = tagsRequest.data;
 
         const tagExists = tags.some(tag => tag.name === tag_name);
 
@@ -71,13 +71,13 @@ const run = async ({github, context, core, version, template}) => {
         }
 
         core.warning('tags');
-        core.warning(tags.data);
+        core.warning(tags);
 
-        const releases = await github.rest.repos.listReleases({
+        const releases = (await github.rest.repos.listReleases({
             owner,
             repo,
             per_page: 5
-        });
+        })).data;
 
         core.warning('releases');
         core.warning(releases);
