@@ -97,6 +97,8 @@ const run = async ({github, context, core, version, template}) => {
         } else if (CREATE_PROD_RELEASE) {
             core.warning(`Tag ${tag_name} does not exist. Create new Production Release!`);
             createNewRelease = true;
+        } else if (tagExists && prodReleaseExists) {
+            core.setFailed(`Tag ${tag_name} exists with release '${release.name}' already exists!`);
         } else if (tagExists && preReleaseExists) {
             core.setFailed(`Tag ${tag_name} exists with prerelease '${release.name}' already exists!`);
         } else if (tagExists) {
