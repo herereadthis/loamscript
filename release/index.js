@@ -60,13 +60,13 @@ const run = async ({github, context, core, version, template}) => {
 
         const tagExists = tags.some(tag => tag.name === tag_name);
 
-        const release = (await github.rest.repos.getReleaseByTag({
+        const releaseRequest = await github.rest.repos.getReleaseByTag({
             owner,
             repo,
             tag: tag_name
-        })).data;
-        core.warning('release');
-        core.warning(release);
+        });
+        core.warning('releaseRequest');
+        core.warning(releaseRequest);
 
         const releases = (await github.rest.repos.listReleases({
             owner,
