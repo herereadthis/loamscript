@@ -48,11 +48,23 @@ const run = async ({github, context, core, version, template}) => {
             sha: BRANCH
         });
 
-        const tags = await github.rest.repos.listTags({
+        const tag_name = `v${version}`;
+
+        const tagRequest = await github.rest.repos.listTags({
             owner,
             repo,
             per_page: 5
         });
+
+        const tags = tagRequest.data;
+
+        const tagExists = tags.some(tag => tag.name === tag_name);
+
+        if (tagExists) {
+            core.warning('tag exists!');
+        } else {
+            core.warning('tag does not exist!');
+        }
 
         core.warning('tags');
         core.warning(tags.data);
@@ -72,7 +84,6 @@ const run = async ({github, context, core, version, template}) => {
             html_url: commitUrl
         } = commits.data[0];
 
-        const tag_name = `v${version}`;
         let prerelease, name;
         if (CREATE_PROD_RELEASE) {
             prerelease = false;
