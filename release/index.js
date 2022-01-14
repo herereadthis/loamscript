@@ -60,10 +60,14 @@ const run = async ({github, context, core, version, template}) => {
 
         const tagExists = tags.some(tag => tag.name === tag_name);
 
-        if (tagExists) {
-            core.warning('tag exists!');
+        if (tagExists && CREATE_PROD_RELEASE) {
+            core.warning('tag exists for latest release');
+        } else if (tagExists) {
+            core.warning('tag exists for prerelease');
+        } else if (!tagExists && CREATE_PROD_RELEASE) {
+            core.warning('tag does not exist for latest release!');
         } else {
-            core.warning('tag does not exist!');
+            core.warning('tag does not exist for prerelease!');
         }
 
         core.warning('tags');
