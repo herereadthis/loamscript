@@ -1,4 +1,3 @@
-const { countReset } = require('console');
 const fs = require('fs');
 
 const {
@@ -12,7 +11,7 @@ const getBody = (sha, commitMessage, commitUrl, branch, template) => {
 ${template}
 
 * Tag Verification
-  * SHA: \`${sha}\` ([link](${commitUrl}))
+  * SHA ([link](${commitUrl})): \`${sha}\`
   * Commit message: \`${commitMessage.replace(/\n+/g, ' - ')}\`
   * Branch: \`${branch}\`
     `;
@@ -51,24 +50,23 @@ const run = async ({github, context, core, version, template}) => {
             tag: tag_name
         })).data;
     } catch (err) {
-        core.info(`A release for tag ${tag_name} already exists`);
+        // Release already exists.
     }
 
+    let commits, tags;
     try {
-        const commits = (await github.rest.repos.listCommits({
+        commits = (await github.rest.repos.listCommits({
             owner,
             repo,
             per_page: 1,
             sha: BRANCH
         })).data;
 
-        core.warning('tags');
-        const tags = (await github.rest.repos.listTags({
+        tags = (await github.rest.repos.listTags({
             owner,
             repo,
             per_page: 10
         })).data;
-        core.warning(tags);
 
         const tagExists = tags.some(tag => tag.name === tag_name);
 
@@ -81,15 +79,12 @@ const run = async ({github, context, core, version, template}) => {
         let createNewRelease = false;
         let updateExistingRelease = false;
 
-        if (prodReleaseExists) {
-            core.warning('release exists');
-            core.warning(release);
-        }
-
         if (CREATE_PROD_RELEASE && tagExists && prodReleaseExists) {
             core.setFailed(`tag ${tag_name} exists with release '${release.name}' already exists!`);
         } else if (CREATE_PROD_RELEASE && tagExists && preReleaseExists) {
-            core.warning(`tag ${tag_name} exists with prerelease '${release.name}' exists. Update existing prerelease!`);
+            core.warning(
+                `Tag ${tag_name} exists with prerelease '${release.name}' exists. Update existing prerelease!`
+            );
             updateExistingRelease = true;
         } else if (CREATE_PROD_RELEASE && tagExists) {
             core.warning(`Tag ${tag_name} exists but no corresponding release exists. Create new production release!`);
@@ -98,7 +93,9 @@ const run = async ({github, context, core, version, template}) => {
             core.warning(`Tag ${tag_name} does not exist. Create new Production Release!`);
             createNewRelease = true;
         } else if (tagExists && prodReleaseExists) {
-            core.setFailed(`Tag ${tag_name} exists with release '${release.name}' already exists! Will not convert to prerelease.`);
+            core.setFailed(
+                `Tag ${tag_name} exists with release '${release.name}' already exists! Will not convert to prerelease.`
+            );
         } else if (tagExists && preReleaseExists) {
             core.setFailed(`Tag ${tag_name} exists with prerelease '${release.name}' already exists!`);
         } else if (tagExists) {
@@ -137,6 +134,10 @@ const run = async ({github, context, core, version, template}) => {
             });
         }
     } catch (err) {
+        core.info('commits');
+        core.tags(commits);
+        core.info('tags');
+        core.tags(tags);
         core.setFailed(err.message);
         throw err;
     }
