@@ -50,31 +50,30 @@ const run = async ({github, context, core, version, template}) => {
             sha: BRANCH
         })).data;
 
+        core.warning('tags');
         const tags = (await github.rest.repos.listTags({
             owner,
             repo,
             per_page: 5
         })).data;
-        core.warning('tags');
         core.warning(tags);
 
         const tagExists = tags.some(tag => tag.name === tag_name);
 
+        core.warning('releaseRequest');
         const releaseRequest = await github.rest.repos.getReleaseByTag({
             owner,
             repo,
             tag: tag_name
         });
-        core.warning('releaseRequest');
         core.warning(releaseRequest);
 
+        core.warning('releases');
         const releases = (await github.rest.repos.listReleases({
             owner,
             repo,
             per_page: 5
         })).data;
-
-        core.warning('releases');
         core.warning(releases);
 
         // prodReleaseExists and preReleaseExists can both be false if a) no 
