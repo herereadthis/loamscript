@@ -41,6 +41,8 @@ const run = async ({github, context, core, version, template}) => {
     }
 
     try {
+        const tag_name = `v${version}`;
+
         const commits = (await github.rest.repos.listCommits({
             owner,
             repo,
@@ -48,13 +50,16 @@ const run = async ({github, context, core, version, template}) => {
             sha: BRANCH
         })).data;
 
-        const tag_name = `v${version}`;
-
         const tags = (await github.rest.repos.listTags({
             owner,
             repo,
             per_page: 5
         })).data;
+
+        core.warning('tags');
+        core.warning(tags);
+
+        const tagExists = tags.some(tag => tag.name === tag_name);
 
         const releases = (await github.rest.repos.listReleases({
             owner,
@@ -64,10 +69,6 @@ const run = async ({github, context, core, version, template}) => {
 
         core.warning('releases');
         core.warning(releases);
-
-        const tags = tagsRequest.data;
-
-        const tagExists = tags.some(tag => tag.name === tag_name);
 
         // prodReleaseExists and preReleaseExists can both be false, e.g., no 
         // releases have been made for the tag. However, they cannot both be
@@ -90,9 +91,6 @@ const run = async ({github, context, core, version, template}) => {
         } else {
             core.warning(`tag${tag_name} does not exist. Craete new Prerelease!`);
         }
-
-        core.warning('tags');
-        core.warning(tags);
 
         const {
             sha,
