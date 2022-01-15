@@ -80,39 +80,37 @@ const run = async ({github, context, core, version, template}) => {
         let updateExistingRelease = false;
 
         if (CREATE_PROD_RELEASE && tagExists && prodReleaseExists) {
-            core.setFailed(`tag ${tag_name} exists with release '${release.name}' already exists!`);
+            core.setFailed(`tag ${tag_name} exists with release '${release.name}'!`);
         } else if (CREATE_PROD_RELEASE && tagExists && preReleaseExists) {
-            core.warning(
-                `Tag ${tag_name} exists with prerelease '${release.name}' exists. Update existing prerelease!`
-            );
+            core.info(`Tag ${tag_name} exists with prerelease '${release.name}'. Update existing prerelease.`);
             updateExistingRelease = true;
         } else if (CREATE_PROD_RELEASE && tagExists) {
-            core.warning(`Tag ${tag_name} exists but no corresponding release exists. Create new production release!`);
+            core.info(`Tag ${tag_name} exists with no corresponding release. Create new production release.`);
             createNewRelease = true;
         } else if (CREATE_PROD_RELEASE) {
-            core.warning(`Tag ${tag_name} does not exist. Create new Production Release!`);
+            core.info(`Tag ${tag_name} does not exist. Create new tag and production release.`);
             createNewRelease = true;
         } else if (tagExists && prodReleaseExists) {
-            core.setFailed(
-                `Tag ${tag_name} exists with release '${release.name}' already exists! Will not convert to prerelease.`
-            );
+            core.setFailed(`Tag ${tag_name} exists with release '${release.name}'! Will not convert to prerelease.`);
         } else if (tagExists && preReleaseExists) {
-            core.setFailed(`Tag ${tag_name} exists with prerelease '${release.name}' already exists!`);
+            core.setFailed(`Tag ${tag_name} exists with prerelease '${release.name}'!`);
         } else if (tagExists) {
-            core.warning(`Tag ${tag_name} exists but no corresponding prerelease exists. Create new prerelease!`);
+            core.info(`Tag ${tag_name} exists with no corresponding release. Create new prerelease.`);
             createNewRelease = true;
         } else {
-            core.warning(`Tag ${tag_name} does not exist. Create new Prerelease!`);
+            core.info(`Tag ${tag_name} does not exist. Create new tag and prerelease.`);
             createNewRelease = true;
         }
         
         if (updateExistingRelease) {
+            // The only currently allowed update is converting a prerelease to a 
+            // (production) release.
             await github.rest.repos.updateRelease({
                 owner,
                 repo,
                 release_id: release.id,
-                name: `${version} ${CREATE_PROD_RELEASE ? 'Production' : 'Staging'}`,
-                prerelease: !CREATE_PROD_RELEASE
+                name: `${version} Production`,
+                prerelease: true
             });
         }
 
