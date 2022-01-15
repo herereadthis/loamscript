@@ -82,23 +82,23 @@ const run = async ({github, context, core, version, template}) => {
         if (CREATE_PROD_RELEASE && tagExists && prodReleaseExists) {
             core.setFailed(`tag ${tag_name} exists with release '${release.name}'!`);
         } else if (CREATE_PROD_RELEASE && tagExists && preReleaseExists) {
-            core.warning(`Tag ${tag_name} exists with prerelease '${release.name}'. Update existing prerelease.`);
+            core.info(`Tag ${tag_name} exists with prerelease '${release.name}'. Update existing prerelease.`);
             updateExistingRelease = true;
         } else if (CREATE_PROD_RELEASE && tagExists) {
-            core.warning(`Tag ${tag_name} exists with no corresponding release. Create new production release.`);
+            core.info(`Tag ${tag_name} exists with no corresponding release. Create new production release.`);
             createNewRelease = true;
         } else if (CREATE_PROD_RELEASE) {
-            core.warning(`Tag ${tag_name} does not exist. Create new tag and production release.`);
+            core.info(`Tag ${tag_name} does not exist. Create new tag and production release.`);
             createNewRelease = true;
         } else if (tagExists && prodReleaseExists) {
             core.setFailed(`Tag ${tag_name} exists with release '${release.name}'! Will not convert to prerelease.`);
         } else if (tagExists && preReleaseExists) {
             core.setFailed(`Tag ${tag_name} exists with prerelease '${release.name}'!`);
         } else if (tagExists) {
-            core.warning(`Tag ${tag_name} exists with no corresponding release. Create new prerelease.`);
+            core.info(`Tag ${tag_name} exists with no corresponding release. Create new prerelease.`);
             createNewRelease = true;
         } else {
-            core.warning(`Tag ${tag_name} does not exist. Create new tag and prerelease.`);
+            core.info(`Tag ${tag_name} does not exist. Create new tag and prerelease.`);
             createNewRelease = true;
         }
         
@@ -110,7 +110,7 @@ const run = async ({github, context, core, version, template}) => {
                 repo,
                 release_id: release.id,
                 name: `${version} Production`,
-                prerelease: true
+                prerelease: false
             });
         }
 
