@@ -45,10 +45,6 @@ jobs:
       - uses: actions/checkout@v2
         with:
           ref: ${{ github.event.inputs.release_branch }}
-      - name: Use Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16.x'
       - name: Get automation repo
         uses: actions/checkout@v2
         with:
@@ -64,7 +60,7 @@ jobs:
           script: |
             const {version} = require('${{ env.DEFAULT_PACKAGE_FILE }}')
             const script = require('${{ env.TEMP_CHECKOUT_DIRECTORY }}/loamscript/release/index.js')
-            const template = '${{ env.RELEASE_TEMPLATE}}'
+            const template = '${{ env.RELEASE_TEMPLATE }}'
             await script({github, context, core, version, template})
 ```
 
